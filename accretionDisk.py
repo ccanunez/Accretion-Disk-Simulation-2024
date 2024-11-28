@@ -51,158 +51,207 @@ Rmax = 2.5
 dr = (Rmax - Rmin)/NY
 r = np.arange(Rmin, Rmax, dr)
 
-'''Functions'''
-
 '''Plotting superfitial density vs radii'''
 
-# radii = np.loadtxt(f"{outputdir}/domain_y.dat")[3:-3] #(Excluimos las celdas fantasma)
-# rmed = 0.5 * (radii[1:] + radii[:-1]) #centramomos las celdas
-# output_number = 1
-# dens_out = np.fromfile(outputdir + f"gasdens{output_number}.dat").reshape(NY, NX)
-# #plt.plot(r, dens_out, 'k--', label='Condición inicial') # Graficamos abs(vr) para usar lo
-# for i in range(6,10,1):
-#     dens = np.fromfile(f"{outputdir}/gasdens{i}.dat")
-#     plt.plot(r, dens*unit_surf_density, label=i)
-#     plt.xlim(0.4,2.5)
-#     plt.xlabel('$r$ [UA]')
-#     plt.ylabel('$\log_{10}\Sigma$ [g/cm$^3$]')
-#     #plt.xscale('log')
-#     #splt.yscale('log')
-#     plt.legend(ncol=3, title='Outputs')
-# plt.tight_layout()
-# plt.savefig('sigma vs r.png', dpi=300)
-# plt.show()
+outputs = range(0, outputs_totales+1, int(outputs_totales/10)) 
+colors = plt.cm.viridis(np.linspace(0, 1, len(outputs)))
+
+plt.figure(figsize=(8, 6))
+for i, output in enumerate(outputs):
+    dens=np.fromfile(path+"gasdens"+str(output)+".dat").reshape(nr,nphi)
+    plt.plot(r,(dens*unit_surf_density), label=f"{output} años", color=colors[i])
+plt.xlabel("$r$ [AU]")
+plt.ylabel("$\log \Sigma$ [g/cm$^2$]") 
+#plt.title("Evolución de densidad superficial")
+plt.legend(loc='best', title='Densidad')
+plt.xlim(0.4, 2.4)
+plt.savefig('dens vs r.png', dpi=300)
+plt.show()
 
 '''Plotting radial velocity vs radii'''
 
-# radii = np.loadtxt(f"{outputdir}/domain_y.dat")[3:-3] #(Excluimos las celdas fantasma)
-# rmed = 0.5 * (radii[1:] + radii[:-1]) #centramomos las celdas
-# output_number = 50
-# v_out = np.fromfile(outputdir + f"gasvy{output_number}.dat").reshape(NY, NX) #
-# #plt.plot(r, abs(v_out), 'k--', label='Condición inicial') # Graficamos abs(vr) para usar lo
-# for i in range(6,10,3):
-#     vr = np.fromfile(f"{outputdir}/gasvy{i}.dat")
-#     plt.plot(r, vr*unit_velocity, label=i)
-#     plt.xlabel('$r$ [UA]')
-#     plt.ylabel('$v_r$ [cm/s]')
-#     #plt.xscale('log')
-#     #plt.yscale('log')
-#     plt.legend(ncol=3, title='Outputs')
-# plt.tight_layout()
-# plt.savefig('vr vs r.png', dpi=300)
-# plt.show()
+outputs = range(0, outputs_totales+1, int(outputs_totales/10)) 
+colors = plt.cm.viridis(np.linspace(0, 1, len(outputs)))
 
-# Example function to fit: Polynomial (quadratic as an example)
-def fit_function(r, a, b, c):
-    return a * r**2 + b * r + c
-
-# Load the radii and velocity data
-radii = np.loadtxt(f"{outputdir}/domain_y.dat")[3:-3]  # Exclude ghost cells
-rmed = 0.5 * (radii[1:] + radii[:-1])  # Center the cells
-
-# Prepare the data for fitting
-data = {}
-for i in range(2,10):
-    vr = np.fromfile(f"{outputdir}/gasvy{i}.dat")
-    data[i] = (rmed, vr * unit_velocity)
-
-# Fit the data and plot
 plt.figure(figsize=(8, 6))
-for i, (r, vr) in data.items():
-    # Fit the data
-    popt, pcov = curve_fit(fit_function, r, vr)
-    vr_fit = fit_function(r, *popt)
-    
-    # Plot original data
-    #plt.plot(r, vr, label=f'Output {i} (data)')
-    # Plot fit
-    plt.plot(r, vr_fit, linestyle='--', label=f'Output {i} (fit)')
-    
-    # Add text label at the end of each fit
-    plt.text(r[-1], vr_fit[-1], f'{i}', fontsize=10, ha='left', va='center')
-
-# Configure plot
-plt.xlabel('$r$ [UA]')
-plt.ylabel('$v_r$ [cm/s]')
-plt.legend(title='Outputs')
-plt.tight_layout()
-plt.savefig('vr_vs_r_fit_with_labels.png', dpi=300)
+for i, output in enumerate(outputs):
+    gas_vy=np.fromfile(path+"gasvy"+str(output)+".dat").reshape(nr,nphi)
+    plt.plot(r, gas_vy*unit_velocity, label=f"{output} años", color=colors[i])
+plt.xlabel("$r$ [AU]")
+plt.ylabel("$v_r$ [cm/s]")
+#plt.title("Evolución de la velocidad radial")
+plt.legend(loc='best', title='Velocidad Radial')
+plt.xlim(0.4, 2.4)
+plt.savefig('vr vs r.png', dpi=300)
 plt.show()
 
+'''Plotting azimutal velocity vs radii'''
+
+outputs = range(0, outputs_totales+1, int(outputs_totales/10)) 
+colors = plt.cm.viridis(np.linspace(0, 1, len(outputs)))
+
+plt.figure(figsize=(8, 6))
+for i, output in enumerate(outputs):
+    gas_vx=np.fromfile(path+"gasvx"+str(output)+".dat").reshape(nr,nphi)
+    plt.plot(r, gas_vx*unit_velocity, label=f"{output} años", color=colors[i])
+plt.xlabel("$r$ [AU]")
+plt.ylabel("$v_\phi$ [cm/s]")
+#plt.title("Evolución de la velocidad azimutal")
+plt.legend(loc='best', title='Velocidad Azimutal')
+plt.xlim(0.4, 2.4)
+plt.savefig('vphi vs r.png', dpi=300)
+plt.show()
 
 '''Accreted Mass'''
 
 # Plotting accreted mass vs radii
 
-radii = np.loadtxt(f"{outputdir}/domain_y.dat")[3:-3] #(Excluimos las celdas fantasma)
-rmed = 0.5 * (radii[1:] + radii[:-1]) #centramomos las celdas
-output_number = 5
-dens_out = np.fromfile(outputdir + f"gasdens{output_number}.dat").reshape(NY, NX)
-v_out = np.fromfile(outputdir + f"gasvy{output_number}.dat").reshape(NY, NX)
-#plt.plot(r, abs(v_out), 'k--', label='Condición inicial') # Graficamos abs(vr) para usar lo
-for i in range(3,10,3):
-    vr = np.fromfile(f"{outputdir}/gasvy{i}.dat")
-    dens = np.fromfile(f"{outputdir}/gasdens{i}.dat")
-    M = -2*np.pi*r*unit_length*dens*unit_surf_density*vr*unit_velocity/(2*10**(30))
-    plt.plot(r, M, label=i)
-    plt.xlim(0.4,2.5)
-    plt.xlabel('$r$ [UA]')
-    plt.ylabel('$\dot{M}$ [M$_\odot$/yr]')
-    #plt.xscale('log')
-    #plt.yscale('log')
-    plt.legend(ncol=3, title='Outputs')
-plt.tight_layout()
+outputs = range(0, outputs_totales+1, int(outputs_totales/10)) 
+colors = plt.cm.viridis(np.linspace(0, 1, len(outputs)))  
+plt.figure(figsize=(8, 6))
+for j, output in enumerate(outputs):
+    radio = []
+    accretion_rate_r1 = []
+    density = np.fromfile(path + f"gasdens{output}.dat").reshape(nr, nphi) * unit_surf_density
+    vr = np.fromfile(path + f"gasvy{output}.dat").reshape(nr, nphi) * unit_velocity
+
+
+    for i in range(len(r)):
+        r_value = r[i]
+        acc_rate_r = -np.sum(density[i, :] * vr[i, :] * 2 * np.pi * (r_value * unit_length))
+        accretion_rate_r1.append(acc_rate_r)
+        radio.append(r_value)
+
+
+    radio = np.array(radio)
+    accretion_rate_r1 = np.array(accretion_rate_r1)
+
+
+    plt.plot(
+        radio,
+        accretion_rate_r1 / (1.898 * (10**30)),
+        label=f"{output} años",
+        color=colors[j]
+    )
+
+# Configurar el gráfico
+plt.xlabel("$r$ [AU]")
+plt.ylabel("$\dot{M}$ [$M_{\odot}$/año]")
+#plt.title("Tasa de acreción vs radio en diferentes tiempos")
+plt.xlim(0.4, 2.5)  # Límite del radio
+plt.legend(loc="upper right", fontsize="small", title='Tasa de Acreción')
 plt.savefig('m vs r.png', dpi=300)
 plt.show()
 
+
 # Plotting accreted mass vs time
 
-radii = np.loadtxt(f"{outputdir}/domain_y.dat")[3:-3] #(Excluimos las celdas fantasma)
-rmed = 0.5 * (radii[1:] + radii[:-1]) #centramomos las celdas
-output_number = 5
-#dens_out = np.fromfile(outputdir + f"gasdens{output_number}.dat").reshape(NY, NX)
-#v_out = np.fromfile(outputdir + f"gasvy{output_number}.dat").reshape(NY, NX)
-#plt.plot(r, abs(v_out), 'k--', label='Condición inicial') # Graficamos abs(vr) para usar lo
-for i in range(9,10):
-    vr = np.fromfile(f"{outputdir}/gasvy{i}.dat")
-    dens = np.fromfile(f"{outputdir}/gasdens{i}.dat")
-    M = -2*np.pi*Rmin*unit_length*dens*unit_surf_density*vr*unit_velocity/(2*10**(30))
-    plt.plot(np.array(np.linspace(1,128,128)), M, label=i)
-    plt.xlim(1,2.5)
-    plt.ylim(1.0e-12,1.0e-11)
-    plt.xlabel('$t$ [yr]')
-    plt.ylabel('$\dot{M}$ [M$_\odot$/yr]')
-    #plt.xscale('log')
-    plt.yscale('log')
-    plt.legend(ncol=3, title='Outputs')
-plt.tight_layout()
+r_med=0.4
+outputs = range(0, outputs_totales+1, int(outputs_totales/10)) 
+colors = plt.cm.viridis(np.linspace(0, 1, len(outputs))) 
+time=[]
+acc_rate=[]
+
+for i in range(0,outputs_totales):
+    density=np.fromfile(path+f"gasdens{i}.dat").reshape(nr, nphi)*unit_surf_density
+    vr=np.fromfile(path+f"gasvy{i}.dat").reshape(nr, nphi)*unit_velocity
+    acc_rate_i=-(density[0]*vr[0]*2*np.pi*(r_med*unit_length))
+    time.append(i)
+    acc_rate.append(acc_rate_i)
+time = np.array(time)
+acc_rate = np.array(acc_rate)
+
+plt.figure(figsize=(8, 6))
+plt.plot(
+    time,
+    acc_rate / (1.898 * (10**30)),
+    label=f'Tasa de acreción a $r={r_med}$ [UA]',
+    color='b'
+)
+plt.xlabel('$t$ [año]')
+plt.ylabel('$\dot{M}$ [$M_{\odot}$/año]')
+#plt.title(f'Tasa de acreción en el tiempo (outputs seleccionados) a r={r_med} [UA]')
+plt.xlim(0, outputs_totales)
+plt.legend(loc='lower right')
 plt.savefig('m vs t.png', dpi=300)
 plt.show()
 
-# Plotting for Luminosity
+'''Plotting luminostity vs time'''
 
-alpha = 1.0e-2
-radii = np.loadtxt(f"{outputdir}/domain_y.dat")[3:-3] #(Excluimos las celdas fantasma)
-rmed = 0.5 * (radii[1:] + radii[:-1]) #centramomos las celdas
-output_number = 5
-dens_out = np.fromfile(outputdir + f"gasdens{output_number}.dat").reshape(NY, NX)
-vphi_out = np.fromfile(outputdir + f"gasvx{output_number}.dat").reshape(NY, NX)
-cs = np.fromfile(outputdir + f"gasenergy{output_number}.dat").reshape(NY, NX)
-#plt.plot(r, abs(v_out), 'k--', label='Condición inicial') # Graficamos abs(vr) para usar lo
-for i in range(9,10,1):
-    vr = np.fromfile(f"{outputdir}/gasvy{i}.dat")
-    vphi = np.fromfile(f"{outputdir}/gasvx{i}.dat")
-    dens = np.fromfile(f"{outputdir}/gasdens{i}.dat")
-    M = -2*np.pi*Rmin*unit_length*dens*unit_surf_density*vr*unit_velocity/(2*10**(30))
-    D = 9/4*(alpha*(cs*unit_velocity)**2/vphi)*dens*unit_surf_density*vphi*unit_velocity*((G*M*unit_mass)/r*unit_length)**2
-    L = G*M*unit_mass/r*unit_length
-    plt.plot(r, L*unit_energy, label=i)
-    #plt.xlim(0.4,2.5)
-    plt.xlabel('$r$ [UA]')
-    plt.ylabel('$L$ [erg]')
-    #plt.xscale('log')
-    plt.yscale('log')
-    plt.legend(ncol=3, title='Output')
-plt.tight_layout()
-plt.savefig('L vs r.png', dpi=300)
+# Plotting for Luminosity for Stellar Disk
+
+time = []
+luminosity_over_time = []
+
+# Parámetros
+alpha = 1e-2  # viscosidad alfa
+radii = r * unit_length  # Radios físicos en cm
+H = 0.05 *radii # H/r constante
+dr = (r[1]-r[0]) * unit_length  # Diferencia radial constante en cm
+
+for i in range(outputs_totales):
+    # Leer densidad superficial y velocidad angular
+    density = np.fromfile(path + f"gasdens{i}.dat").reshape(nr) * unit_surf_density
+    v_theta = np.fromfile(path + f"gasvx{i}.dat").reshape(nr) * unit_velocity
+    cs = np.fromfile(path + f"gasenergy{i}.dat").reshape(nr) * unit_velocity
+    # Calcular frecuencia angular Omega
+    Omega = v_theta / radii
+
+    # Calcular viscosidad cinemática ν = H * c_s * α
+    nu = alpha * H * cs  # Aquí v_theta ~ c_s, suposición en discos delgados
+
+    # Calcular luminosidad L = ∫ (9/4) * ν * Σ * Ω^2 * (2πr) dr
+    luminosity = np.sum((9/4) * nu * density * Omega**2 * 2 * np.pi * radii * dr)
+    luminosity_over_time.append(luminosity)
+
+    # Almacenar tiempo
+    time.append(i)
+
+# Convertir listas a arrays de numpy
+time = np.array(time)
+luminosity_over_time = np.array(luminosity_over_time)
+
+# Graficar luminosidad vs. tiempo
+plt.figure(figsize=(10, 6))
+plt.plot(time, luminosity_over_time, color='blue', label='Luminosidad del Disco Protoestelar')
+plt.xlabel('$t$ [años]')
+plt.ylabel('$L$ [erg/s]')
+#plt.title('$L_{disk} vs t$')
+plt.legend(loc='upper right')
+plt.xlim(0, outputs_totales-1)
+plt.savefig('Lproto vs t.png', dpi=300)
+plt.show()
+
+# Plotting Luminostity for AGN
+
+r_med=0.4
+outputs = range(0, outputs_totales+1, int(outputs_totales/10)) 
+colors = plt.cm.viridis(np.linspace(0, 1, len(outputs))) 
+time=[]
+acc_rate=[]
+luminosidad=[]
+for i in range(0,outputs_totales):
+    density=np.fromfile(path+f"gasdens{i}.dat").reshape(nr, nphi)*unit_surf_density
+    vr=np.fromfile(path+f"gasvy{i}.dat").reshape(nr, nphi)*unit_velocity
+    acc_rate_i=-(density[0]*vr[0]*2*np.pi*(r_med*unit_length))
+    lum=acc_rate_i*unit_mass*G/(r_med*unit_length)
+    time.append(i)
+    acc_rate.append(acc_rate_i)
+    luminosidad.append(lum)
+time = np.array(time)
+acc_rate = np.array(acc_rate)
+luminosidad = np.array(luminosidad)
+plt.figure(figsize=(8, 6))
+plt.plot(
+    time,
+    luminosidad,
+    label=f'Luminosidad del Disco AGN',
+    color='b'
+)
+plt.xlabel('$t$ [años]')
+plt.ylabel('$L$ [erg/s]')
+#plt.title('$L_{acc} vs t$')
+plt.xlim(0, outputs_totales)
+plt.legend(loc='lower right')
+plt.savefig('Lagn vs t.png', dpi=300)
 plt.show()
